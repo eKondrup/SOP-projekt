@@ -6,24 +6,18 @@ import pandas as pd
 import numpy as np
 import time 
 import matplotlib.pyplot as plt
-
+import ast
 
 #Sti til data og omdannelse til pandas Dataframe
 S2_C1_2_Tr1 = pd.read_csv('../EMG data/S2_CSV/S2_C1_2_40_Tr1.csv', header=None)
 
-#Adskillelse af channels/kolonner
-col1_S2_C1_2_Tr1 = S2_C1_2_Tr1.iloc[:,0]
-
-#Konvertering til Pandas DataFrame
-df = pd.DataFrame(S2_C1_2_Tr1)
 
 segment_list = []
 sleep = time.sleep
 np_window_datapoints = []
 
 def get_ssc(np_window_datapoints):
-    
-    i_ssc = 0
+    np_window_datapoints = np.array(np_window_datapoints)
     n_ssc = 0
 
     datapoints_difference = np.diff(np_window_datapoints)
@@ -43,7 +37,7 @@ def get_ssc(np_window_datapoints):
     return n_ssc
 
 def get_zero_crossings(np_window_datapoints, ZC_position=False):
-    
+    np_window_datapoints = np.array(np_window_datapoints)
     #Datapoints fra det vinduet, hvor alle nuller er sorteret fra gemmes i dette array
     window_datapoints_no_zero = []
     #Dette array indeholder positionen hvor alle zero-crossings er i window_datapoints
@@ -109,34 +103,37 @@ def feature_extractor(np_window_datapoints):
     feature_list = [MAV, ZC, WL, SSC]
     return feature_list
 
-#Iterer over kolonner i dataframen
-i=0
-for column in df.columns:
-    segment_list.clear()
-    print(f"Kolonne: {column+1}")
-    #sleep(0.1)
-    #Iterer over celler i hver kolonne
-    for cell in df.iloc[:,column]:
-       
-        if len(segment_list) < 41:
-            segment_list.append(cell)
-        else:
-            #Alle datapunkterne i vinduet, som et numpy array
-            np_window_datapoints = pd.DataFrame(segment_list).to_numpy().flatten()
 
-            #print(np_window_datapoints)
-            #Alle datapunkterne i vinduet, som en pandas dataframe
-            #print(len(np_window_datapoints))
 
-            #print(window_datapoints)
-            i+=1
-            #print(f"Segment nr: {i} Segment længde: {len(segment_list)} MAV: {feature_extractor(window_datapoints)[0]} ZC: {feature_extractor(window_datapoints)[1]} WL: {feature_extractor(window_datapoints)[2]} SSC: {feature_extractor(window_datapoints)[3]}")
-            
-            #segment_list.clear()
-            #print(np.sign(np_window_datapoints))
-            print(feature_extractor(np_window_datapoints)[1])
-            print(feature_extractor(np_window_datapoints)[3])
-            
-            #print(f"{np.diff(np.sign(window_datapoints))}")
-            segment_list = segment_list[-10:]
-            sleep(1)
+#Læs dataframen
+read = pd.read_csv('array.csv')
+print(type(ast.literal_eval(read.iloc[0, 0])))
+
+# Brug ast.literal_eval til at konvertere stringen tilbage til en liste
+#Denne variabel bliver kun brugt til at determinere længden af en celle i loopet herunder
+df_window_list = ast.literal_eval(read.iloc[0, 0])
+
+
+for j in range(len(read.columns)): #Looper over kolonnerne i read
+    
+    for i in range(len(df_window_list)): #Looper over rækkerne
+        sleep(0.3)
+        
+        print(feature_extractor(ast.literal_eval(read.iloc[i, j])))
+        # for punkt, datapoint in enumerate(ast.literal_eval(read.iloc[i, j])):
+        #     print(f"punkt{punkt} {datapoint}")
+        #     feature_extractor()
+        # #print(df_window_list)
+        print(f"Række nr: {i}")
+        
+    print(f"Row: {i}, Column: {j}")
+    sleep(0.5)
+    
+
+
+# # Convert the list to a NumPy array
+# r_array = np.array(r_list)
+
+# # Now r_array is a NumPy array, and you can iterate through it as you would normally
+# for elem in r_array:
+#     print(elem)
