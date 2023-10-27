@@ -7,6 +7,7 @@ import numpy as np
 import time 
 import matplotlib.pyplot as plt
 import ast
+import csv
 
 #Sti til data og omdannelse til pandas Dataframe
 S2_C1_2_Tr1 = pd.read_csv('../EMG data/S2_CSV/S2_C1_2_40_Tr1.csv', header=None)
@@ -96,8 +97,10 @@ def feature_extractor(np_window_datapoints):
     #Zero crossings. Hvor signalet krydser 0mV
     ZC  = get_zero_crossings(np_window_datapoints)
 
+    #Waveform length
     WL =  np.sum(np.abs(np.diff(np_window_datapoints)))
 
+    #Slope sign changes
     SSC = get_ssc(np_window_datapoints)
 
     feature_list = [MAV, ZC, WL, SSC]
@@ -107,33 +110,40 @@ def feature_extractor(np_window_datapoints):
 
 #Læs dataframen
 read = pd.read_csv('array.csv')
-print(type(ast.literal_eval(read.iloc[0, 0])))
+
 
 # Brug ast.literal_eval til at konvertere stringen tilbage til en liste
 #Denne variabel bliver kun brugt til at determinere længden af en celle i loopet herunder
 df_window_list = ast.literal_eval(read.iloc[0, 0])
-
+feature_list = []
 
 for j in range(len(read.columns)): #Looper over kolonnerne i read
-    
+    col_feature = []
     for i in range(len(df_window_list)): #Looper over rækkerne
-        sleep(0.3)
-        
-        print(feature_extractor(ast.literal_eval(read.iloc[i, j])))
-        # for punkt, datapoint in enumerate(ast.literal_eval(read.iloc[i, j])):
-        #     print(f"punkt{punkt} {datapoint}")
-        #     feature_extractor()
-        # #print(df_window_list)
+        # sleep(0.5)
+        # plt.figure(figsize=(14, 6))
+        # # plt.xticks([0, 5, 10, 15, 20, 25,30,35,40])
+        # # plt.yticks([-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,0.8])
+        # plt.xlim(0, 40)  # x-axis will go from 0 to 10
+        # plt.ylim(-0.8, 0.8)  # y-axis will go from 0 to 10
+        # plt.plot(ast.literal_eval(read.iloc[i, j]))
+        # plt.title('EMG Signal')
+        # plt.xlabel('Time (samples)')
+        # plt.ylabel('Amplitude')
+        # plt.grid(True)
+        # plt.show()
+    
+        feature = feature_extractor(ast.literal_eval(read.iloc[i, j]))
+        print(feature)
         print(f"Række nr: {i}")
+        col_feature.append(feature)
+        # print(col_feature)
+        #sleep(0.3)
+        
+    feature_list.append(col_feature)
+      
+        
         
     print(f"Row: {i}, Column: {j}")
-    sleep(0.5)
-    
+    #sleep(0.5)
 
-
-# # Convert the list to a NumPy array
-# r_array = np.array(r_list)
-
-# # Now r_array is a NumPy array, and you can iterate through it as you would normally
-# for elem in r_array:
-#     print(elem)

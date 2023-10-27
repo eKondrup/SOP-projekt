@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import ast
+import icecream
 
 list = [[-0.0078125, 0.0078125, 0.       , 0.       , 0.       , 0.0078125,
  -0.0078125,-0.0078125,-0.0078125,-0.015625 ,-0.0078125, 0.0078125,
@@ -9,31 +10,38 @@ list = [[-0.0078125, 0.0078125, 0.       , 0.       , 0.       , 0.0078125,
  -0.0078125, 0.0078125, 0.       , 0.0078125, 0.       ,-0.015625 ,
   0.       ,-0.0078125, 0.       ,-0.0078125, 0.       ,-0.015625 ,
   0.0078125, 0.       ,-0.0078125, 0.       ]]
-print(list)
+# print(list)
 df = pd.read_csv('../EMG data/S2_CSV/S2_C1_2_40_Tr1.csv', header=None)
 
 
+d = np.array([[[1 , 2 , 3],[1 , 2 , 3]],[[1 , 2 , 3],[1 , 2 , 3]], [[1, 2, 3],[1, 2, 3]],[[1, 2, 3],[1, 2, 3]]])
 
-# Read the DataFrame
-read = pd.read_csv('array.csv')
+l = d.reshape(-1,3)
 
-# Get the first cell from the first column
-r = read.iloc[0, 0]
+# icecream(print(d))
+print(d)
 
-# Use ast.literal_eval to convert the string back to a list
-r_list = ast.literal_eval(r)
+print(l)
+# # Read the DataFrame
+# read = pd.read_csv('array.csv')
 
-# Convert the list to a NumPy array
-r_array = np.array(r_list)
+# # Get the first cell from the first column
+# r = read.iloc[0, 0]
 
-# Now r_array is a NumPy array, and you can iterate through it as you would normally
-for elem in r_array:
-    print(elem)
+# # Use ast.literal_eval to convert the string back to a list
+# r_list = ast.literal_eval(r)
 
-#print(r)
-#r = pd.DataFrame(r)
-#print(r)
-#print(pd.DataFrame(r).to_numpy())
+# # Convert the list to a NumPy array
+# r_array = np.array(r_list)
+
+# # Now r_array is a NumPy array, and you can iterate through it as you would normally
+# for elem in r_array:
+#     print(elem)
+
+# #print(r)
+# #r = pd.DataFrame(r)
+# #print(r)
+# #print(pd.DataFrame(r).to_numpy())
 
 '''
 window_size = 40
