@@ -10,9 +10,12 @@ import matplotlib.pyplot as plt
 sleep = time.sleep
 
 #Sti til data og omdannelse til pandas Dataframe
-S2_C1_2_Tr1 = pd.read_csv('../EMG data/S2_CSV/S2_C1_2_40_Tr1.csv', header=None)
-
-df = S2_C1_2_Tr1
+gesture = "G1"
+trail = "1"
+file = f'../EMG data/{gesture}/S2_{gesture}_40_Tr{trail}.csv'
+df = pd.read_csv(file, header=None)
+#Skal kun bruge datapunkter fra de 5 sekunder i midten af datasættet
+df = df.iloc[1000:2000]
 
 window_size = 40
 overlap = 10
@@ -20,7 +23,9 @@ step_size = window_size - overlap
 
 #Liste til at lagre vinduerne
 segments = []
-
+####
+#Læsning af fil og konvertering til segments
+####
 #Iterering gennem hver kolonne
 for col in df.columns:
     col_data = df[col].values
@@ -39,8 +44,8 @@ for col in df.columns:
     segments.append(col_segments)
 
 #Konvertering af listen af segmenter til 3D np array
-#3D arrayet ser har dette format array_3D[0] = datapunkt og array_3D[1] = datapunkt 2 men hvis man laver dette om til en Dataframe bliver dataen
-#Plsceret på den forkerte akse, derfor bruger jeg np.transpose, så dataen sikkert kan laves om til en Dataframe
+#3D arrayet har dette format array_3D[0] = datapunkt og array_3D[1] = datapunkt 2 men hvis man laver dette om til en Dataframe bliver dataen
+#Plsceret på den forkerte akse, derfor bruger jeg np.transpose, så dataen korrekt kan laves om til en Dataframe
 array_3d = np.array(segments)
 array_3d = np.transpose(array_3d, (1, 0, 2))
 
@@ -55,7 +60,8 @@ for i in range(array_3d.shape[1]):  #Looper igennem hver colonne
         segment_str = np.array2string(segment, separator=',', max_line_width=np.inf)
         #col_data[i] = '[elem1, elem2]' altså col_data er liste af strings, som faktisk er andre lister
         col_data.append(segment_str)
-    new_df[f'Column_{i+1}'] = col_data
+    new_df[f'Channel_{i+1}'] = col_data
 
 #Dataframen skrives til en ny fil
-new_df.to_csv('array.csv', index=False)
+# print(new_df)
+new_df.to_csv(f'../EMG data/{gesture}/{gesture}_segments_Tr{trail}.csv', index=False)
