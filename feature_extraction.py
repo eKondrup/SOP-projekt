@@ -11,7 +11,7 @@ import csv
 
 #Sti til data og omdannelse til pandas Dataframe
 gesture = "G1"
-trail = "1"
+trail = "2"
 file = f'../EMG data/{gesture}/{gesture}_segments_Tr{trail}.csv'
 df_read_file = pd.read_csv(file)
 

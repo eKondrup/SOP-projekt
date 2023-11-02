@@ -2,26 +2,141 @@ import pandas as pd
 import numpy as np
 import ast
 import icecream
+import time
+sleep = time.sleep
 
-list = [[-0.0078125, 0.0078125, 0.       , 0.       , 0.       , 0.0078125,
+list = [-0.0078125, 0.0078125, 0.       , 0.       , 0.       , 0.0078125,
  -0.0078125,-0.0078125,-0.0078125,-0.015625 ,-0.0078125, 0.0078125,
  -0.015625 ,-0.015625 , 0.       ,-0.0078125,-0.0078125, 0.       ,
  -0.0078125, 0.       , 0.       ,-0.0078125,-0.0078125,-0.015625 ,
  -0.0078125, 0.0078125, 0.       , 0.0078125, 0.       ,-0.015625 ,
   0.       ,-0.0078125, 0.       ,-0.0078125, 0.       ,-0.015625 ,
-  0.0078125, 0.       ,-0.0078125, 0.       ]]
-# print(list)
-df = pd.read_csv('../EMG data/S2_CSV/S2_C1_2_40_Tr1.csv', header=None)
+  0.0078125, 0.       ,-0.0078125, 0.       ]
+#Sti til data og omdannelse til pandas Dataframe
+gesture = "G1"
+trail = "1"
+test_file = f'../EMG data/{gesture}/{gesture}_features_Tr{trail}.csv'
+test_file =f"C:/Users/emila/OneDrive - TECHCOLLEGE/Skole/SOP/EMG data/G1/{gesture}_features_Tr{trail}.csv"
+df_read_test_file = pd.read_csv(test_file)
+
+trail = "1"
+
+gesture1 = "G1"
+test_file1 = f'../EMG data/{gesture1}/{gesture1}_features_Tr{trail}.csv'
+test_file1 = pd.read_csv(test_file1)
+
+gesture2 = "G1"
+# trail2 = "1"
+test_file2 = f'../EMG data/{gesture2}/{gesture2}_features_Tr{trail}.csv'
+test_file2 = pd.read_csv(test_file2)
+
+gesture3 = "G1"
+# trail3 = "1"
+test_file3 = f'../EMG data/{gesture3}/{gesture3}_features_Tr{trail}.csv'
+test_file3 = pd.read_csv(test_file3)
+
+gesture4 = "G1"
+# trail4 = "1"
+test_file4 = f'../EMG data/{gesture4}/{gesture4}_features_Tr{trail}.csv'
+test_file4 = pd.read_csv(test_file4)
+
+gesture5 = "G1"
+# trail5 = "1"
+test_file5 = f'../EMG data/{gesture5}/{gesture5}_features_Tr{trail}.csv'
+test_file5 = pd.read_csv(test_file5)
+
+n_features = 4
+n_segments = 33
+n_channels = 8
+
+def func(list):
+    for elem in list:
+        if elem == 0:
+            if elem == 0:
+                return elem
+        else: return
+
+print(func(list=list))
 
 
-d = np.array([[[1 , 2 , 3],[1 , 2 , 3]],[[1 , 2 , 3],[1 , 2 , 3]], [[1, 2, 3],[1, 2, 3]],[[1, 2, 3],[1, 2, 3]]])
 
-l = d.reshape(-1,3)
 
-# icecream(print(d))
-print(d)
+# df_window_list_len = len(df_read_test_file.iloc[:,0])
+# feature_list = []
 
-print(l)
+# for j in range(len(df_read_test_file.columns)): #Looper over kolonnerne i read
+
+#     col_feature = []
+
+#     for i in range(df_window_list_len): #Looper over rækkerne
+#         # Brug ast.literal_eval til at konvertere stringen tilbage til en liste
+#         feature = ast.literal_eval(df_read_test_file.iloc[i, j])
+                       
+#         col_feature.append(feature)     
+
+#     feature_list.append(col_feature)
+
+# feature_list_3D = np.array(feature_list)
+
+# feature_list_2d = feature_list_3D.reshape(-1, n_features)
+
+# df_read_test_file = df_read_test_file.to_numpy
+# i=0
+# feature_list = []
+# feature_list = np.empty((0,32))
+
+# for feature_list_str in df_read_test_file.values: #Looper over rækken i read
+#     feature_list_row = []
+#     for elem in feature_list_str:
+#         # print(f"type: {type(elem)} elem: {elem}")
+#         feature = ast.literal_eval(elem)
+#         # print(f"type: {type(feature)} elem: {feature}")
+#         feature_list_row = np.append(feature_list_row, feature)
+
+#         # print(f"{i} {feature_list_row}")
+#         i+=1
+#         # sleep(1)
+
+#     feature_list = np.vstack((feature_list, feature_list_row))
+# print(feature_list.shape)
+# print(pd.DataFrame(feature_list))
+# print(pd.DataFrame(feature_list))
+        # for cell in elem:
+        #     print(f"{feature}")
+        #     feature = ast.literal_eval([cell])
+        #     print(feature)
+# ar = df_read_test_file.values
+# print(f"values {ar}")
+# ar = np.transpose(ar)
+
+# print(f"transposed: {ar}")
+
+
+
+# # Laver en liste med hver channel i [0,1..,7]
+# #Der bliver brugt en list comprehension: https://stackoverflow.com/questions/6475314/python-for-in-loop-preceded-by-a-variable
+# channels_list = np.array([l for l in range(n_channels)]).flatten()
+
+# #Listen bliver gentaget n_segmetns n_segments gange og samme elementer
+# #Sættes ved siden af hinanden [0*33,1*33...] ish..
+# channels_list = np.repeat(channels_list, n_segments)
+
+# # # Add column indices to the 2D array
+# channels_list_reshaped = channels_list[:feature_list_2d.shape[0]].reshape(-1, 1)
+# print(channels_list_reshaped)
+
+# channels_list_reshaped = channels_list[263].reshape(-1, 1)
+# print(channels_list_reshaped)
+
+
+# d = np.array([[[1 , 2 , 3],[1 , 2 , 3]],[[1 , 2 , 3],[1 , 2 , 3]], [[1, 2, 3],[1, 2, 3]],[[1, 2, 3],[1, 2, 3]]])
+
+# l = d.reshape(-1,3)
+
+# # icecream(print(d))
+# print(d)
+
+# print(l)
 # # Read the DataFrame
 # read = pd.read_csv('array.csv')
 
@@ -81,7 +196,7 @@ for i in range(array_3d.shape[1]):  # Loop through each column
         col_data.append(segment_str)
     new_df[f'Column_{i+1}'] = col_data
 
-# Write the DataFrame to a new CSV file
+# Write the DataFrame to a new CSV test_file
 new_df.to_csv('array.csv', index=False)
 '''
 

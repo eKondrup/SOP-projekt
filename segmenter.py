@@ -11,7 +11,7 @@ sleep = time.sleep
 
 #Sti til data og omdannelse til pandas Dataframe
 gesture = "G1"
-trail = "1"
+trail = "2"
 file = f'../EMG data/{gesture}/S2_{gesture}_40_Tr{trail}.csv'
 df = pd.read_csv(file, header=None)
 #Skal kun bruge datapunkter fra de 5 sekunder i midten af datasættet

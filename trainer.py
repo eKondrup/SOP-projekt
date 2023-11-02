@@ -1,26 +1,38 @@
 import pandas as pd
 import numpy as np
 import time 
+sleep = time.sleep
 import matplotlib.pyplot as plt
 import ast
 import csv
 
 from sklearn.datasets import make_circles, make_classification, make_moons
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+quad_discriminant = QuadraticDiscriminantAnalysis()
+from sklearn.ensemble import GradientBoostingClassifier
+gradient_boosting = GradientBoostingClassifier()
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
+random_forest = RandomForestClassifier()
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.inspection import DecisionBoundaryDisplay
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
+gaussian = GaussianNB()
 from sklearn.neighbors import KNeighborsClassifier
+neighbors_clsf = KNeighborsClassifier()
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+svm = SVC()
 from sklearn.tree import DecisionTreeClassifier
+dec_tree_clsf = DecisionTreeClassifier()
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LogisticRegression
+logReg = LogisticRegression()
 from sklearn.preprocessing import OneHotEncoder
 encoder = OneHotEncoder(sparse_output=False)
 
@@ -92,52 +104,63 @@ def load_features(files, one_hot_encoded_label, is_channel_feature=True, verbose
     #Læsning af features. 
     #Features bliver gemt i feature_list, som har en shape på 8*33*4
     ################
-    files_feature_list_2d = np.empty((0,5))
+
+    
     if is_channel_feature==True:
-        for file in files:
+
+        files_feature_list_labels = []
+        files_feature_list_2d = np.empty((0,5))
+        feature_list = np.empty((0,4))
+
+        
+        for file_nr,file in enumerate(files):
             #Denne variabel bliver kun brugt til at determinere længden af en celle i loopet herunder
             df_window_list_len = len(file.iloc[:,0])
-            feature_list = []
+            
+            
         
             for j in range(len(file.columns)): #Looper over kolonnerne i read
         
-                col_feature = []
+                col_feature = np.empty((0,4))
             
                 for i in range(df_window_list_len): #Looper over rækkerne
             
             
                     # Brug ast.literal_eval til at konvertere stringen tilbage til en liste
                     feature = ast.literal_eval(file.iloc[i, j])
-                                
-                    col_feature.append(feature)     
+                    col_feature = np.vstack((col_feature, feature)) 
+                       
+                    files_feature_list_labels = np.append(files_feature_list_labels, file_nr)
+                    
+                #col_feature kobles vertikalt på feature list for hver kolonne, for hver fil i files
+                feature_list = np.vstack((feature_list, col_feature))
+      
             
-                feature_list.append(col_feature)
+        #Dette giver en liste på denne form
+        #[feat1,feat2,feat3,feat4]
+        #Med 264 (8*33) rækker
+        # feature_list_2d = feature_list_3D.reshape(-1, n_features)
+        # print(feature_list_2d)
+        # Laver en liste med hver channel i [0,1..,7]
+        #Der bliver brugt en list comprehension: https://stackoverflow.com/questions/6475314/python-for-in-loop-preceded-by-a-variable
+        channels_list = np.array([l for l in range(n_channels)]).flatten()
+        
+        #Listen bliver gentaget n_segmetns* n_files gange og samme elementer - 
+        #sættes ved siden af hinanden [0,0,0 *33*5... 1,1,1 *33*5] ish..
+        channels_list = np.repeat(channels_list, n_segments*len(files))
+        
+        #Dette reshapper channels list sådan det er klar til at sættes sammen med feature_list og hvert segment får en feature mere
+        channels_list_reshaped = channels_list[:feature_list.shape[0]].reshape(-1, 1)
+        
+        #Channel featuren blev tilføjet til en liste
+        feature_list_2d_with_channel = np.column_stack((channels_list_reshaped, feature_list))
+        # print(feature_list_2d_with_channel)
+        
+        #feature_list_2d_with_channel bliver tilføjet til et nyt np array der holder alle features fra alle filerne
+        files_feature_list_2d = np.append(files_feature_list_2d, feature_list_2d_with_channel, axis=0)
+        
+        
             
-            feature_list_3D = np.array(feature_list)
-            # print(feature_list_3D)
-                
-            #Dette giver en liste på denne form
-            #[feat1,feat2,feat3,feat4]
-            #Med 264 (8*33) rækker
-            feature_list_2d = feature_list_3D.reshape(-1, n_features)
-            # print(feature_list_2d)
-            # Laver en liste med hver channel i [0,1..,7]
-            #Der bliver brugt en list comprehension: https://stackoverflow.com/questions/6475314/python-for-in-loop-preceded-by-a-variable
-            channels_list = np.array([l for l in range(n_channels)]).flatten()
-
-            #Listen bliver gentaget n_segmetns n_segments gange og samme elementer
-            #Sættes ved siden af hinanden [0*33,1*33...] ish..
-            channels_list = np.repeat(channels_list, n_segments)
-            
-            #TODO: Find ud af hvad dette betyder
-            channels_list_reshaped = channels_list[:feature_list_2d.shape[0]].reshape(-1, 1)
-            
-            #Channel featuren blev tilføjet til en liste
-            feature_list_2d_with_channel = np.column_stack((channels_list_reshaped, feature_list_2d))
-            # print(feature_list_2d_with_channel)
-
-            #feature_list_2d_with_channel bliver tilføjet til et nyt np array der holder alle features fra alle filerne
-            files_feature_list_2d = np.append(files_feature_list_2d, feature_list_2d_with_channel, axis=0)
 
         if verbose==True:
             
@@ -146,9 +169,10 @@ def load_features(files, one_hot_encoded_label, is_channel_feature=True, verbose
             pd.set_option('display.max_columns', None)
 
             print(f"Dataframe af features*segments med channels som feature\n{pd.DataFrame(feature_list_2d_with_channel)}")
-            print(f"Dataframe af samlet features*segments med channels som feature\n{pd.DataFrame(files_feature_list_2d)}")
-        #Resetter 
-        return feature_list_2d_with_channel    
+            # print(f"Dataframe af samlet features*segments med channels som feature\n{pd.DataFrame(files_feature_list_2d)}")
+            print(files_feature_list_labels)
+         
+        return feature_list_2d_with_channel, files_feature_list_labels
     
 
     if is_channel_feature == False: 
@@ -176,7 +200,7 @@ def load_features(files, one_hot_encoded_label, is_channel_feature=True, verbose
 
                 #feature_list_row tilføjes til et nyt array på den vertikale akse
                 files_feature_list = np.vstack((files_feature_list, feature_list_row))
-
+                
                 files_feature_list_labels = np.append(files_feature_list_labels, file_nr)
             
         if verbose==True:
@@ -215,12 +239,78 @@ def prepare_data(train_files, test_files, one_hot_encoded_label, is_channel_feat
 
     
 lda = LinearDiscriminantAnalysis()
+x_train, y_train, x_test, y_test = prepare_data(train_files, test_files, one_hot_encoded_label=False, is_channel_feature=True, verbose=False)
+
+lda.fit(x_train, y_train)
+
+score = lda.score(x_test, y_test)
+print(f'LDA Accuracy: {score}')
+
+y_pred = lda.predict(x_test)
+
+gaussian.fit(x_train,y_train)
+score = gaussian.score(x_test, y_test)
+print(f'Gaussian Accuracy: {score}')
+
+random_forest.fit(x_train,y_train)
+score = random_forest.score(x_test, y_test)
+print(f'Random forest Accuracy: {score}')
+
+dec_tree_clsf.fit(x_train,y_train)
+score = dec_tree_clsf.score(x_test, y_test)
+print(f'Decision Tree Accuracy: {score}')
+
+quad_discriminant.fit(x_train,y_train)
+score = quad_discriminant.score(x_test, y_test)
+print(f'Quadratic Discriminant Accuracy: {score}')
+
+gradient_boosting.fit(x_train,y_train)
+score = gradient_boosting.score(x_test, y_test)
+print(f'Gradient Boosting Accuracy: {score}')
+
+neighbors_clsf.fit(x_train,y_train)
+score = neighbors_clsf.score(x_test, y_test)
+print(f'Nearest Neighbors Accuracy: {score}')
+
+gaussian.fit(x_train,y_train)
+score = gaussian.score(x_test, y_test)
+print(f'Gaussian Accuracy: {score}')
+
+
+lda = LinearDiscriminantAnalysis()
 x_train, y_train, x_test, y_test = prepare_data(train_files, test_files, one_hot_encoded_label=False, is_channel_feature=False, verbose=False)
 
 lda.fit(x_train, y_train)
 
 score = lda.score(x_test, y_test)
-print(f'Accuracy: {score}')
+print(f'LDA Accuracy: {score}')
 
 y_pred = lda.predict(x_test)
-# print(y_pred)
+
+gaussian.fit(x_train,y_train)
+score = gaussian.score(x_test, y_test)
+print(f'Gaussian Accuracy: {score}')
+
+random_forest.fit(x_train,y_train)
+score = random_forest.score(x_test, y_test)
+print(f'Random forest Accuracy: {score}')
+
+dec_tree_clsf.fit(x_train,y_train)
+score = dec_tree_clsf.score(x_test, y_test)
+print(f'Decision Tree Accuracy: {score}')
+
+quad_discriminant.fit(x_train,y_train)
+score = quad_discriminant.score(x_test, y_test)
+print(f'Quadratic Discriminant Accuracy: {score}')
+
+gradient_boosting.fit(x_train,y_train)
+score = gradient_boosting.score(x_test, y_test)
+print(f'Gradient Boosting Accuracy: {score}')
+
+neighbors_clsf.fit(x_train,y_train)
+score = neighbors_clsf.score(x_test, y_test)
+print(f'Nearest Neighbors Accuracy: {score}')
+
+gaussian.fit(x_train,y_train)
+score = gaussian.score(x_test, y_test)
+print(f'Gaussian Accuracy: {score}')
